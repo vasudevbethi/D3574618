@@ -40,7 +40,7 @@ object SplashScreenDestination : NavigationDestination {
 }
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
+fun SplashScreen(onFinish: () -> Unit) {
 
     // Animation duration for texts
     val animDuration = remember {
@@ -95,10 +95,7 @@ fun SplashScreen(navController: NavHostController) {
             animationSpec = tween(1500)
         ) // Animation to scale the splash screen elements
         delay(2000L) // Delay before navigating to the next screen
-        launch(Main) {
-            navController.popBackStack() // Clear any existing back stack
-            navController.navigate(HomeScreenDestination.route) // Navigate to the home screen
-        }
+        onFinish()
     }
 }
 

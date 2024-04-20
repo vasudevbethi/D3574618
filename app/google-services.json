@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "479659468694",
+    "project_id": "reusable-item-exchange",
+    "storage_bucket": "reusable-item-exchange.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479659468694:android:49a6b647db41342889dfb7",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.d3574618"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479659468694-15lkjigrh82l48tork99pnanii54r0hf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uk.ac.tees.mad.d3574618",
+            "certificate_hash": "50142d843a625db3db251955a702b560ad8b2392"
+          }
+        },
+        {
+          "client_id": "479659468694-1060jqim3qr8n1a933ckbitkvvimvt04.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC1NLLk3Ulr3aWkU6tHJyp96BUDyRkaso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479659468694-1060jqim3qr8n1a933ckbitkvvimvt04.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
