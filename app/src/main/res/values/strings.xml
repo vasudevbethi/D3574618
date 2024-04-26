@@ -2,4 +2,9 @@
     <string name="app_name">Reusable Item Exchange</string>
     <string name="auth">Authentication</string>
     <string name="forget_password">Forgot Password</string>
+    <string name="home">Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="messages">Messages</string>
+    <string name="profile">Profile</string>
+    <string name="add_item">Add Item</string>
 </resources>

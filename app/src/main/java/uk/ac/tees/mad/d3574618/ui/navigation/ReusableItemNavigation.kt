@@ -15,8 +15,16 @@ import uk.ac.tees.mad.d3574618.auth.AuthScreen
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordDestination
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordScreen
 import uk.ac.tees.mad.d3574618.auth.GoogleAuthUiClient
+import uk.ac.tees.mad.d3574618.ui.screens.AddItems
+import uk.ac.tees.mad.d3574618.ui.screens.AddItemsDestination
+import uk.ac.tees.mad.d3574618.ui.screens.Favorites
+import uk.ac.tees.mad.d3574618.ui.screens.FavoritesDestination
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreen
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination
+import uk.ac.tees.mad.d3574618.ui.screens.Messages
+import uk.ac.tees.mad.d3574618.ui.screens.MessagesDestination
+import uk.ac.tees.mad.d3574618.ui.screens.ProfileDestination
+import uk.ac.tees.mad.d3574618.ui.screens.ProfileScreen
 import uk.ac.tees.mad.d3574618.ui.screens.SplashScreen
 import uk.ac.tees.mad.d3574618.ui.screens.SplashScreenDestination
 
@@ -75,13 +83,33 @@ fun ReusableItemNavigation() {
         // Home screen destination
         composable(HomeScreenDestination.route) {
             // Display the home screen composable
-            HomeScreen(navController = navController, onLogOut = {
-                scope.launch {
-                    firebase.signOut()
-                    googleAuthUiClient.signOut()
-                    navController.navigate(SplashScreenDestination.route)
+            HomeScreen(navController = navController, )
+        }
+
+        composable(FavoritesDestination.route) {
+            Favorites(
+                navController = navController
+            )
+        }
+        composable(AddItemsDestination.route) {
+            AddItems(
+            )
+        }
+        composable(MessagesDestination.route) {
+            Messages(
+                navController = navController
+            )
+        }
+        composable(ProfileDestination.route) {
+            ProfileScreen(
+                navController = navController,onLogOut = {
+                    scope.launch {
+                        firebase.signOut()
+                        googleAuthUiClient.signOut()
+                        navController.navigate(SplashScreenDestination.route)
+                    }
                 }
-            })
+            )
         }
     }
 }
