@@ -26,6 +26,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapVerticalCircle
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -99,12 +101,13 @@ fun ProfileScreen(
     val userDetailsState = viewModel.currentUserData.collectAsState(initial = null)
     val acceptRequestState = viewModel.acceptSwapState.collectAsState(initial = null)
     val rejectRequestState = viewModel.rejectSwapState.collectAsState(initial = null)
+    val deleteItemState = viewModel.deleteItemState.collectAsState(initial = null)
 
     val uiState = viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    val tabList = listOf("Swap requests", "Listed Items")
+    val tabList = listOf("Swap requests", "Listed Items", "Swap History")
     val swapRequestList = remember {
         mutableStateListOf<Pair<Item, Item>>()
     }
@@ -142,6 +145,17 @@ fun ProfileScreen(
             }
         }
     }
+    LaunchedEffect(deleteItemState.value?.data) {
+        if (!deleteItemState.value?.data.isNullOrEmpty()) {
+            context.showToast("Item deleted")
+            viewModel.getMyListedItems()
+        }
+    }
+    LaunchedEffect(deleteItemState.value?.error) {
+        if (!deleteItemState.value?.error.isNullOrEmpty()) {
+            context.showToast("Item delete Error: ${deleteItemState.value?.error}")
+        }
+    }
 
     LaunchedEffect(acceptRequestState.value?.data) {
         if (!acceptRequestState.value?.data.isNullOrEmpty()) {
@@ -153,7 +167,7 @@ fun ProfileScreen(
 
     LaunchedEffect(acceptRequestState.value?.error) {
         if (!acceptRequestState.value?.error.isNullOrEmpty()) {
-            context.showToast("Accepted Request Error: ${acceptRequestState.value?.data}")
+            context.showToast("Accepted Request Error: ${acceptRequestState.value?.error}")
         }
     }
 
@@ -167,7 +181,7 @@ fun ProfileScreen(
 
     LaunchedEffect(rejectRequestState.value?.error) {
         if (!rejectRequestState.value?.error.isNullOrEmpty()) {
-            context.showToast("Rejected Request Error: ${rejectRequestState.value?.data}")
+            context.showToast("Rejected Request Error: ${rejectRequestState.value?.error}")
         }
     }
 
@@ -286,6 +300,16 @@ fun ProfileScreen(
 
                         1 -> {
                             MyListedItem(
+                                myListedItemsState = myListedItemsState,
+                                onItemClick = onItemClick,
+                                onItemDelete = {
+                                    viewModel.deleteItem(it)
+                                }
+                            )
+                        }
+
+                        2 -> {
+                            SwapHistory(
                                 myListedItemsState = myListedItemsState,
                                 onItemClick = onItemClick
                             )
@@ -515,8 +539,8 @@ fun ItemInfo(item: Item, title: String, onSwapItemClick: () -> Unit = {}) {
 @Composable
 fun MyListedItem(
     myListedItemsState: State<MyListedItemsState?>,
-    onItemClick: (String) -> Unit
-
+    onItemClick: (String) -> Unit,
+    onItemDelete: (String) -> Unit
 ) {
     val myListedItems = myListedItemsState.value?.isSuccess
     Column(
@@ -541,17 +565,124 @@ fun MyListedItem(
                         item = item.toItem(),
                         onClick = { onItemClick(item.key!!) },
                         onLike = {
-
-                        }
+                            onItemDelete(item.key!!)
+                        },
+                        iconRes = Icons.Outlined.DeleteOutline
                     )
                 }
             }
         }
-
-
     }
 }
 
+@Composable
+fun SwapHistory(
+    myListedItemsState: State<MyListedItemsState?>,
+    onItemClick: (String) -> Unit
+) {
+    val myListedItems = myListedItemsState.value?.isSuccess?.filter {
+        it.item?.itemSwapStatus != "Pending"
+    }?.map {
+        it.toItem()
+    }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (myListedItemsState.value?.isLoading == true) {
+            CircularProgressIndicator()
+        } else {
+            if (myListedItems == null) {
+
+                Column(Modifier.fillMaxWidth()) {
+                    Text(text = "No items swapped")
+                }
+
+            } else {
+                myListedItems.forEach { item ->
+                    SwapHistoryItem(
+                        item = item,
+                        onClick = { onItemClick(item.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SwapHistoryItem(item: Item, onClick: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }) {
+        Box(
+            Modifier
+                .clip(RoundedCornerShape(24.dp))
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).crossfade(true)
+                    .data(item.image[0])
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            if (item.itemSwapStatus == "Swapped") MaterialTheme.colorScheme.primary else Color.Red.copy(
+                                0.5f
+                            )
+                        )
+                ) {
+                    Text(
+                        text = item.itemSwapStatus,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            }
+        }
+        Column(Modifier.padding(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = "Swap",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Outlined.SwapHoriz,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = item.category, fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = item.category, fontSize = 13.sp, color = Color.Gray)
+        }
+
+    }
+
+}
 
 @Composable
 fun EditDetails(

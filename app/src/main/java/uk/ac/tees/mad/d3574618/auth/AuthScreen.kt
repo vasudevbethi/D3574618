@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.d3574618.auth
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -63,6 +64,7 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.d3574618.R
 import uk.ac.tees.mad.d3574618.data.domain.LoginStatus
 import uk.ac.tees.mad.d3574618.data.domain.RegisterState
+import uk.ac.tees.mad.d3574618.showToast
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 
 object AuthDestination : NavigationDestination {
@@ -205,7 +207,27 @@ fun AuthScreen(
 
         }
         Spacer(modifier = Modifier.height(18.dp))
+        var isGoogleSigned by remember {
+            mutableStateOf(false)
+        }
 
+        LaunchedEffect(currentUserStatus.value?.isSuccess) {
+            if (currentUserStatus.value?.isSuccess != null && isGoogleSigned) {
+                loginSuccess()
+                Log.d("USER", currentUserStatus.value!!.isSuccess.toString())
+            }
+        }
+
+        LaunchedEffect(currentUserStatus.value?.isError) {
+            if (currentUserStatus.value?.isError != null && isGoogleSigned) {
+                val user = googleAuthUiClient.getSignedInUser()
+                context.showToast("${currentUserStatus.value?.isError}")
+                if (user != null) {
+                    viewModel.saveUserInFirestore(user)
+                }
+                registerSuccess()
+            }
+        }
 
         LaunchedEffect(key1 = signInState.isSignInSuccessful) {
             if (signInState.isSignInSuccessful) {
@@ -214,14 +236,11 @@ fun AuthScreen(
                     "Sign in successful",
                     Toast.LENGTH_LONG
                 ).show()
-                val user = googleAuthUiClient.getSignedInUser()
-                if (user != null) {
-                    viewModel.saveUserInFirestore(user)
-                }
-                viewModel.resetState()
-                registerSuccess()
+                viewModel.getUserDetails()
+                isGoogleSigned = true
             }
         }
+
         LaunchedEffect(key1 = signInStatus.value?.isSuccess) {
             scope.launch {
                 if (signInStatus.value?.isSuccess?.isNotEmpty() == true) {
@@ -229,7 +248,8 @@ fun AuthScreen(
                     val success = signInStatus.value?.isSuccess
                     Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
                     currentUserStatus.value?.isSuccess.let {
-                        if (it?.item?.phone.isNullOrEmpty()) {
+
+                        if (it?.item?.phone?.isEmpty() == true) {
                             registerSuccess()
                         } else {
                             loginSuccess()

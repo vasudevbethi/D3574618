@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +35,12 @@ import uk.ac.tees.mad.d3574618.data.domain.Item
 
 
 @Composable
-fun GridItem(item: Item, onClick: () -> Unit, onLike: () -> Unit) {
+fun GridItem(
+    item: Item,
+    onClick: () -> Unit,
+    onLike: () -> Unit,
+    iconRes: ImageVector = Icons.Outlined.FavoriteBorder
+) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -66,7 +72,7 @@ fun GridItem(item: Item, onClick: () -> Unit, onLike: () -> Unit) {
                         .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f))
 
                 ) {
-                    Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = "Like")
+                    Icon(imageVector = iconRes, contentDescription = null)
                 }
             }
         }

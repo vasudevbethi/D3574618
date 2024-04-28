@@ -1,6 +1,5 @@
 package uk.ac.tees.mad.d3574618.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +31,9 @@ class ProfileViewModel @Inject constructor(
 
     private val _rejectSwapState = Channel<RequestState>()
     val rejectSwapState = _rejectSwapState.receiveAsFlow()
+
+    private val _deleteItemState = Channel<RequestState>()
+    val deleteItemState = _deleteItemState.receiveAsFlow()
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
@@ -69,9 +71,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-     fun acceptSwapRequest(itemId: String, swapWithItemId: String) = viewModelScope.launch {
+    fun acceptSwapRequest(itemId: String, swapWithItemId: String) = viewModelScope.launch {
         firestoreRepository.acceptSwapRequest(itemId, swapWithItemId).collect {
-            when(it) {
+            when (it) {
                 is Resource.Error -> {
                     _acceptSwapState.send(RequestState(error = it.message))
                 }
@@ -87,10 +89,10 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-     fun rejectSwapRequest(itemId: String, swapWithItemId: String) = viewModelScope.launch {
+    fun rejectSwapRequest(itemId: String, swapWithItemId: String) = viewModelScope.launch {
 
         firestoreRepository.rejectSwapRequest(itemId, swapWithItemId).collect {
-            when(it) {
+            when (it) {
                 is Resource.Error -> {
                     _rejectSwapState.send(RequestState(error = it.message))
                 }
@@ -101,6 +103,25 @@ class ProfileViewModel @Inject constructor(
 
                 is Resource.Success -> {
                     _rejectSwapState.send(RequestState(data = it.data))
+                }
+            }
+        }
+    }
+
+    fun deleteItem(itemId: String) = viewModelScope.launch {
+
+        firestoreRepository.deleteItem(itemId).collect {
+            when (it) {
+                is Resource.Error -> {
+                    _deleteItemState.send(RequestState(error = it.message))
+                }
+
+                is Resource.Loading -> {
+                    _deleteItemState.send(RequestState(isLoading = true))
+                }
+
+                is Resource.Success -> {
+                    _deleteItemState.send(RequestState(data = it.data))
                 }
             }
         }

@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -90,7 +89,7 @@ fun HomeScreen(
         if (!itemRetrieveState.value?.isSuccess.isNullOrEmpty()) {
             itemRetrieveState.value?.isSuccess.let {
                 itemList.value = it?.filter { item ->
-                    item.item?.keywords?.contains("") == true
+                    item.item?.keywords?.contains("") == true && item.item.itemSwapStatus != "Swapped"
                 }!!
             }
         }

@@ -10,7 +10,8 @@ fun FirestoreItemResponse.toItem() = Item(
     image = item?.image ?: emptyList(),
     swapRequests = item?.swapRequests ?: emptyList(),
     dateListed = item?.dateListed,
-    listedBy = item?.listedBy
+    listedBy = item?.listedBy,
+    itemSwapStatus = item?.itemSwapStatus ?: ""
 )
 
 fun FirestoreItemResponse.FirestoreItem.toItem() = Item(
@@ -23,5 +24,6 @@ fun FirestoreItemResponse.FirestoreItem.toItem() = Item(
     image = image,
     swapRequests = swapRequests ?: emptyList(),
     dateListed = dateListed,
-    listedBy = listedBy
+    listedBy = listedBy,
+    itemSwapStatus = itemSwapStatus
 )

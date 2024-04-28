@@ -1,9 +1,12 @@
 package uk.ac.tees.mad.d3574618.auth
 
 import android.Manifest
+import android.content.Context
 import android.graphics.Bitmap
+import android.location.Location
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -28,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,15 +67,20 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.d3574618.R
+import uk.ac.tees.mad.d3574618.data.repository.LocationManager
 import uk.ac.tees.mad.d3574618.handleImageCapture
 import uk.ac.tees.mad.d3574618.handleImageSelection
+import uk.ac.tees.mad.d3574618.showToast
 import uk.ac.tees.mad.d3574618.ui.components.PhotoPickerOptionBottomSheet
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
+import uk.ac.tees.mad.d3574618.ui.viewmodels.ApplicationViewModel
+import kotlin.random.Random
 
-object MoreDetailDestination: NavigationDestination{
+object MoreDetailDestination : NavigationDestination {
     override val route: String
         get() = "more_details"
     override val titleRes: Int
@@ -83,6 +92,7 @@ object MoreDetailDestination: NavigationDestination{
 @Composable
 fun MoreDetailsScreen(
     viewModel: AuthViewModel = hiltViewModel(),
+    applicationViewModel: ApplicationViewModel = hiltViewModel(),
     onSuccess: () -> Unit
 ) {
     val uiState = viewModel.moreDetailsUiState.collectAsState().value
@@ -92,6 +102,21 @@ fun MoreDetailsScreen(
     }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val locationState =
+        applicationViewModel.locationFlow.collectAsState(initial = newLocation())
+
+    val locationPermissions = listOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    )
+
+    val locationPermissionsState = rememberMultiplePermissionsState(
+        locationPermissions
+    )
+    val activity = (context as ComponentActivity)
+    val locationManager = LocationManager(context, activity)
+    val isGpsEnabled = locationManager.gpsStatus.collectAsState(initial = false)
+
     val galleryLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
             selectedImage = uri
@@ -118,6 +143,7 @@ fun MoreDetailsScreen(
     val updateDetailsStatus = viewModel.updateDetailsStatus.collectAsState(initial = null)
 
 
+
     LaunchedEffect(key1 = updateDetailsStatus.value?.isSuccess) {
         scope.launch {
             if (updateDetailsStatus.value?.isSuccess?.isNotEmpty() == true) {
@@ -137,7 +163,6 @@ fun MoreDetailsScreen(
             }
         }
     }
-
     Column(
         Modifier
             .fillMaxSize()
@@ -230,7 +255,8 @@ fun MoreDetailsScreen(
                         )
                     } else {
                         AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current).crossfade(true)
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .crossfade(true)
                                 .data(uiState.images).build(),
                             contentDescription = "Selected image",
                             contentScale = ContentScale.Crop,
@@ -247,7 +273,7 @@ fun MoreDetailsScreen(
                     viewModel.updateMoreDetailState(uiState.copy(phone = it))
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = {
+                label = {
                     Text(text = "Phone")
                 },
                 maxLines = 1,
@@ -265,17 +291,42 @@ fun MoreDetailsScreen(
                     viewModel.updateMoreDetailState(uiState.copy(location = it))
                 },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = {
+                label = {
                     Text(text = "Location")
                 },
-                maxLines = 1,
+                trailingIcon = {
+
+                    Icon(
+                        imageVector = Icons.Outlined.MyLocation,
+                        contentDescription = "Get location",
+                        modifier = Modifier.clickable {
+                            if (locationPermissionsState.allPermissionsGranted) {
+                                if (!isGpsEnabled.value) {
+                                    locationManager.checkGpsSettings()
+                                } else {
+
+                                    viewModel.updateMoreDetailState(
+                                        uiState.copy(
+                                            location = locationManager.getAddressFromCoordinate(
+                                                latitude = locationState.value.latitude,
+                                                longitude = locationState.value.longitude
+                                            )
+                                        )
+                                    )
+                                }
+                            } else {
+                                locationPermissionsState.launchMultiplePermissionRequest()
+                            }
+
+                        }
+                    )
+                },
                 visualTransformation = VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(onNext = {
                     focusManager.clearFocus()
                 }),
             )
-
             Spacer(modifier = Modifier.weight(1f))
             Row(
                 modifier = Modifier
@@ -284,7 +335,10 @@ fun MoreDetailsScreen(
                     .background(MaterialTheme.colorScheme.primary)
                     .height(50.dp)
                     .clickable {
-                        viewModel.updateUser()
+                        if (validateFields(uiState, context)) {
+
+                            viewModel.updateUser()
+                        }
                     },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -298,3 +352,31 @@ fun MoreDetailsScreen(
 
     }
 }
+
+fun validateFields(uiState: MoreDetailsUiState, context: Context): Boolean {
+    if (uiState.images?.isEmpty() == true || uiState.images == null) {
+        context.showToast("Image not selected")
+        return false
+    }
+
+    if (uiState.phone.isBlank()) {
+        context.showToast("Empty phone number")
+        return false
+    }
+
+    if (uiState.location.isBlank() || uiState.location == "No address found") {
+        context.showToast("Location not selected")
+        return false
+    }
+    return true
+}
+
+private fun newLocation(): Location {
+    val location = Location("MyLocationProvider")
+    location.apply {
+        latitude = 51.509865 + Random.nextFloat()
+        longitude = -0.118092 + Random.nextFloat()
+    }
+    return location
+}
+

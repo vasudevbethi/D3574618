@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.d3574618.ui.screens
 
+import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -228,80 +229,10 @@ fun ItemDetailsScreen(
                                 fontWeight = FontWeight.Medium
                             )
                             Spacer(modifier = Modifier.height(16.dp))
-                            Column(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .border(
-                                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                                        RoundedCornerShape(16.dp)
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Box(
-                                    modifier = Modifier
-
-                                        .padding(12.dp)
-                                        .size(90.dp)
-                                        .clip(CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .crossfade(true)
-                                            .data(item?.listedBy?.profileImage)
-                                            .build(),
-                                        contentDescription = null,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "${item?.listedBy?.name}",
-                                        fontSize = 22.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(text = "${item?.listedBy?.email}", fontSize = 16.sp)
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(vertical = 16.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Email,
-                                            contentDescription = "Email",
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clickable {
-                                                    context.sendMail(
-                                                        to = item?.listedBy?.email!!,
-                                                        subject = "Regarding ${item.name} listed on Reusable item exchange"
-                                                    )
-                                                },
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Message,
-                                            modifier = Modifier.size(40.dp),
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            contentDescription = "Message",
-                                        )
-                                        Icon(
-                                            imageVector = Icons.Default.Call,
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clickable {
-                                                    context.dial(item?.listedBy?.phone!!)
-                                                },
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            contentDescription = "Call"
-                                        )
-                                    }
-                                }
-                            }
+                            ListedByUserCard(
+                                context = context,
+                                item = item
+                            )
                         }
                     }
                 }
@@ -317,6 +248,88 @@ fun ItemDetailsScreen(
             items = myListedItemsState.value?.isSuccess,
             isLoading = ((showPopupLoading) || (myListedItemsState.value?.isLoading == true) || (swapRequestState.value?.isLoading == true))
         )
+    }
+}
+
+@Composable
+fun ListedByUserCard(
+    item: Item?,
+    context: Context
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .border(
+                BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                RoundedCornerShape(16.dp)
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+
+                .padding(12.dp)
+                .size(90.dp)
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .crossfade(true)
+                    .data(item?.listedBy?.profileImage)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "${item?.listedBy?.name}",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Text(text = "${item?.listedBy?.email}", fontSize = 16.sp)
+            Text(text = "${item?.listedBy?.location}", fontSize = 16.sp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Email",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable {
+                            context.sendMail(
+                                to = item?.listedBy?.email!!,
+                                subject = "Regarding ${item.name} listed on Reusable item exchange"
+                            )
+                        },
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Message,
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                    contentDescription = "Message",
+                )
+                Icon(
+                    imageVector = Icons.Default.Call,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable {
+                            context.dial(item?.listedBy?.phone!!)
+                        },
+                    tint = MaterialTheme.colorScheme.primary,
+                    contentDescription = "Call"
+                )
+            }
+        }
     }
 }
 

@@ -30,6 +30,7 @@ interface FirestoreRepository {
     fun getItemsByKeyList(keyList: List<String>): Flow<Resource<List<FirestoreItemResponse>>>
     suspend fun getMyListedItems(): Flow<Resource<List<FirestoreItemResponse>>>
     fun getItemById(itemId: String): Flow<Resource<FirestoreItemResponse>>
+    fun deleteItem(itemId: String): Flow<Resource<String>>
     fun requestForSwap(itemId: String, swapWithItemId: String): Flow<Resource<String>>
     fun acceptSwapRequest(itemId: String, swapWithItemId: String): Flow<Resource<String>>
     fun rejectSwapRequest(itemId: String, swapWithItemId: String): Flow<Resource<String>>
@@ -66,9 +67,12 @@ class FirestoreRepositoryImpl @Inject constructor(
 
                             trySend(Resource.Success(userResponse))
                         } else {
+                            trySend(Resource.Error(message = "No data found in Database"))
+
                             println("No data found in Database")
                         }
                     } else {
+                        trySend(Resource.Error(message = "No data found in Database"))
                         println("No data found in Database")
                     }
                 }.addOnFailureListener { e ->
@@ -109,7 +113,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                         "category" to item.category,
                         "condition" to item.condition,
                         "listedByKey" to item.listedByKey,
-                        "swapStatus" to "Pending"
+                        "itemSwapStatus" to "Pending"
                     )
 
                     firestore.collection("items")
@@ -199,7 +203,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                         val name = item?.get("name") as String
                         val description = item["description"] as String
                         val image = item["image"] as List<String>
-                        val dateListed = (item["listedDate"] as com.google.firebase.Timestamp).toDate()
+                        val dateListed =
+                            (item["listedDate"] as com.google.firebase.Timestamp).toDate()
                         val keywords = item["keywords"] as String
                         val category = ItemCategory.valueOf(item["category"] as String)
                         val condition = ItemCondition.valueOf(item["condition"] as String)
@@ -293,8 +298,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                                 FirestoreItemResponse(
                                     FirestoreItemResponse.FirestoreItem(
                                         id = itemRef.id,
-                                        name = item.getString("name")!!,
-                                        description = item.getString("description")!!,
+                                        name = item.getString("name") ?: "",
+                                        description = item.getString("description") ?: "",
                                         image = item.get("image") as List<String>,
                                         dateListed = (item.getTimestamp("listedDate")?.toDate())!!,
                                         keywords = item.getString("keywords")!!,
@@ -341,7 +346,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                             name = user?.get("username") as String,
                             email = user["email"] as String,
                             phone = user["phone"] as String,
-                            profileImage = user["images"] as String
+                            profileImage = user["images"] as String,
+                            location = user["location"] as String
                         )
                     } else null
 
@@ -379,6 +385,30 @@ class FirestoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun deleteItem(itemId: String): Flow<Resource<String>> = callbackFlow {
+        trySend(Resource.Loading())
+        val userId = firebaseAuth.currentUser?.uid
+        firestore.runTransaction { transaction ->
+            val itemRef = firestore.collection("items").document(itemId)
+            val userRef = firestore.collection("users").document(userId!!)
+            val user = transaction.get(userRef)
+
+            // Remove the item from the user's listedItems
+            val listedItems = user.get("listedItems") as MutableList<String>?
+                ?: mutableListOf()
+            listedItems.remove(itemId)
+            transaction.update(userRef, "listedItems", listedItems)
+
+            // Delete the item from the items collection
+            transaction.delete(itemRef)
+        }.addOnSuccessListener {
+            trySend(Resource.Success("Item deleted successfully..."))
+        }.addOnFailureListener { e ->
+            Log.w("Error deleting", "Error deleting item", e)
+            trySend(Resource.Error("Error deleting item: ${e.message}"))
+        }
+        awaitClose { close() }
+    }
 
     override fun requestForSwap(itemId: String, swapWithItemId: String): Flow<Resource<String>> =
         callbackFlow {

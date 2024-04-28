@@ -13,7 +13,8 @@ data class Item(
     val listedBy: UserResponse.CurrentUser? = null,
     val swapRequests: List<FirestoreItemResponse.FirestoreItem>? = null,
     val image: List<String>,
-    val dateListed: Date? = null
+    val dateListed: Date? = null,
+    val itemSwapStatus: String = ""
 )
 
 fun Item.toFavoriteEntity() = FavoriteEntity(

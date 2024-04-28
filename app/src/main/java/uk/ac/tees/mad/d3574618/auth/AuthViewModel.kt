@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.d3574618.auth
 
+import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -148,7 +149,7 @@ class AuthViewModel @Inject constructor(
         getUserDetails()
     }
 
-    private fun getUserDetails() =
+    fun getUserDetails() =
         viewModelScope.launch {
 
             firestoreRepository.getCurrentUser().collect{ result ->
@@ -192,6 +193,11 @@ class AuthViewModel @Inject constructor(
                 }
             }
         }
+
+    val currentLocation = MutableStateFlow<Location?>(null)
+
+
+
 
 }
 
