@@ -3,9 +3,11 @@ package uk.ac.tees.mad.d3574618.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -15,14 +17,19 @@ import uk.ac.tees.mad.d3574618.auth.AuthScreen
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordDestination
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordScreen
 import uk.ac.tees.mad.d3574618.auth.GoogleAuthUiClient
+import uk.ac.tees.mad.d3574618.auth.MoreDetailDestination
+import uk.ac.tees.mad.d3574618.auth.MoreDetailsScreen
+import uk.ac.tees.mad.d3574618.ui.screens.AddItemSuccess
 import uk.ac.tees.mad.d3574618.ui.screens.AddItems
 import uk.ac.tees.mad.d3574618.ui.screens.AddItemsDestination
-import uk.ac.tees.mad.d3574618.ui.screens.Favorites
-import uk.ac.tees.mad.d3574618.ui.screens.FavoritesDestination
+import uk.ac.tees.mad.d3574618.ui.screens.AddItemsSuccessDestination
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreen
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination
-import uk.ac.tees.mad.d3574618.ui.screens.Messages
-import uk.ac.tees.mad.d3574618.ui.screens.MessagesDestination
+import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination.route
+import uk.ac.tees.mad.d3574618.ui.screens.ItemDetailsDestination
+import uk.ac.tees.mad.d3574618.ui.screens.ItemDetailsScreen
+import uk.ac.tees.mad.d3574618.ui.screens.LikedItemsDestination
+import uk.ac.tees.mad.d3574618.ui.screens.LikedItemsScreen
 import uk.ac.tees.mad.d3574618.ui.screens.ProfileDestination
 import uk.ac.tees.mad.d3574618.ui.screens.ProfileScreen
 import uk.ac.tees.mad.d3574618.ui.screens.SplashScreen
@@ -43,7 +50,7 @@ fun ReusableItemNavigation() {
         )
     }
     val initialDestination =
-        if ((currentUser != null) || (googleAuthUiClient.getSignedInUser() != null)) HomeScreenDestination.route else AuthDestination.route
+        if ((currentUser != null) || (googleAuthUiClient.getSignedInUser() != null)) route else AuthDestination.route
 
     // Define the navigation graph using NavHost
     NavHost(navController = navController, startDestination = SplashScreenDestination.route) {
@@ -60,13 +67,24 @@ fun ReusableItemNavigation() {
 
         composable(AuthDestination.route) {
             AuthScreen(
-                registerSuccess = {
+                loginSuccess = {
                     navController.navigate(HomeScreenDestination.route)
+
+                },
+                registerSuccess = {
+                    navController.navigate(MoreDetailDestination.route)
+
                 },
                 onForgetPassword = {
                     navController.navigate(ForgotPasswordDestination.route)
                 }
             )
+        }
+
+        composable(MoreDetailDestination.route) {
+            MoreDetailsScreen(onSuccess = {
+                navController.navigate(HomeScreenDestination.route)
+            })
         }
 
         composable(ForgotPasswordDestination.route) {
@@ -83,31 +101,80 @@ fun ReusableItemNavigation() {
         // Home screen destination
         composable(HomeScreenDestination.route) {
             // Display the home screen composable
-            HomeScreen(navController = navController, )
+            HomeScreen(
+                navController = navController,
+                onItemClick = {
+                    navController.navigate("${ItemDetailsDestination.route}/$it")
+                }, onLikedClick = {
+                    navController.navigate(LikedItemsDestination.route)
+                }
+            )
         }
 
-        composable(FavoritesDestination.route) {
-            Favorites(
-                navController = navController
+        composable(LikedItemsDestination.route) {
+            LikedItemsScreen(
+                onNavigateUp = {
+                    navController.navigateUp()
+                },
+                onItemClick = {
+                    navController.navigate("${ItemDetailsDestination.route}/$it")
+                }
             )
         }
+
+        composable(
+            route = ItemDetailsDestination.routeWithArgs,
+            arguments = listOf(navArgument(ItemDetailsDestination.itemIdArg) {
+                type = NavType.StringType
+            })
+        ) {
+            ItemDetailsScreen(
+                onBack = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
         composable(AddItemsDestination.route) {
             AddItems(
+                onAddItemSuccess = {
+                    navController.popBackStack()
+                    navController.navigate(AddItemsSuccessDestination.route + "/" + it)
+                },
+                onNavigateUp = {
+                    navController.navigateUp()
+                }
             )
         }
-        composable(MessagesDestination.route) {
-            Messages(
-                navController = navController
+
+        composable(
+            AddItemsSuccessDestination.routeWithArgs,
+            arguments = listOf(navArgument(ItemDetailsDestination.itemIdArg) {
+                type = NavType.StringType
+            })
+        ) {
+            val itemId = it.arguments?.getString("itemId")
+            AddItemSuccess(
+                onSuccess = {
+                    navController.popBackStack()
+                    navController.navigate(HomeScreenDestination.route)
+                },
+                onViewItem = {
+                    navController.navigate(ItemDetailsDestination.route + "/" + itemId)
+                }
             )
         }
+
         composable(ProfileDestination.route) {
             ProfileScreen(
-                navController = navController,onLogOut = {
+                navController = navController, onLogOut = {
                     scope.launch {
                         firebase.signOut()
                         googleAuthUiClient.signOut()
-                        navController.navigate(SplashScreenDestination.route)
+                        navController.navigate(AuthDestination.route)
                     }
+                }, onItemClick = {
+                    navController.navigate(ItemDetailsDestination.route + "/" + it)
                 }
             )
         }

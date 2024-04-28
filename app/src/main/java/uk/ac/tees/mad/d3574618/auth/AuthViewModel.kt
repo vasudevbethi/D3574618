@@ -14,18 +14,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import uk.ac.tees.mad.d3574618.data.ReusableItemExchangeRepository
-import uk.ac.tees.mad.d3574618.domain.LoginState
-import uk.ac.tees.mad.d3574618.domain.LoginStatus
-import uk.ac.tees.mad.d3574618.domain.RegisterState
-import uk.ac.tees.mad.d3574618.domain.Resource
-import uk.ac.tees.mad.d3574618.domain.SignInResult
-import uk.ac.tees.mad.d3574618.domain.UserData
+import uk.ac.tees.mad.d3574618.data.domain.CurrentUser
+import uk.ac.tees.mad.d3574618.data.domain.LoginState
+import uk.ac.tees.mad.d3574618.data.domain.LoginStatus
+import uk.ac.tees.mad.d3574618.data.domain.RegisterState
+import uk.ac.tees.mad.d3574618.data.domain.Resource
+import uk.ac.tees.mad.d3574618.data.domain.SignInResult
+import uk.ac.tees.mad.d3574618.data.domain.UserData
+import uk.ac.tees.mad.d3574618.data.repository.FirestoreRepository
+import uk.ac.tees.mad.d3574618.data.repository.ReusableItemExchangeRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val repository: ReusableItemExchangeRepository, firebaseAuth: FirebaseAuth
+    private val repository: ReusableItemExchangeRepository,
+    private val firestoreRepository: FirestoreRepository
 ) : ViewModel() {
 
     private val _loginUiState = MutableStateFlow(LoginUiState())
@@ -37,11 +40,20 @@ class AuthViewModel @Inject constructor(
     private val _signInStatus = Channel<LoginStatus>()
     val signInState = _signInStatus.receiveAsFlow()
 
+    private val _updateDetailStatus = Channel<LoginStatus>()
+    val updateDetailsStatus = _updateDetailStatus.receiveAsFlow()
+
+    private val _currentUserStatus = Channel<CurrentUser>()
+    val currentUserStatus = _currentUserStatus.receiveAsFlow()
+
     private val _googleSignInResult = MutableStateFlow(SignInResult())
     val googleSignInResult = _googleSignInResult.asStateFlow()
 
     private val _signupUiState = MutableStateFlow(SignUpUiState())
     val signUpUiState = _signupUiState.asStateFlow()
+
+    private val _moreDetailsUiState = MutableStateFlow(MoreDetailsUiState())
+    val moreDetailsUiState = _moreDetailsUiState.asStateFlow()
 
     private val _signUpState = Channel<RegisterState>()
     val signUpState = _signUpState.receiveAsFlow()
@@ -53,6 +65,10 @@ class AuthViewModel @Inject constructor(
 
     fun updateLoginState(value: LoginUiState) {
         _loginUiState.value = value
+    }
+
+    fun updateMoreDetailState(value: MoreDetailsUiState) {
+        _moreDetailsUiState.value = value
     }
 
     fun onSignInWithGoogleResult(result: SignInResult) {
@@ -102,65 +118,80 @@ class AuthViewModel @Inject constructor(
     }
 
     fun saveUserInFirestore(user: UserData) = viewModelScope.launch {
-        repository.saveUser(email = user.email, username = user.username, userId = user.userId)
+        repository.saveUser(
+            email = user.email,
+            username = user.username,
+            userId = user.userId
+        )
     }
 
-    var username = mutableStateOf("Guest")
-    private var myDatabase = Firebase.firestore
-    private val uid = firebaseAuth.currentUser?.uid
+    fun updateUser() = viewModelScope.launch {
+        repository.updateCurrentUser(_moreDetailsUiState.value).collect { result ->
+            when (result) {
+                is Resource.Error -> {
+                    _updateDetailStatus.send(LoginStatus(isError = result.message))
+                }
+
+                is Resource.Loading -> {
+                    _updateDetailStatus.send(LoginStatus(isLoading = true))
+                }
+
+                is Resource.Success -> {
+                    _updateDetailStatus.send(LoginStatus(isSuccess = "Updated successfully"))
+
+                }
+            }
+        }
+    }
 
     init {
         getUserDetails()
     }
 
-    private fun getUserDetails() {
+    private fun getUserDetails() =
         viewModelScope.launch {
-            if (uid != null) {
-                myDatabase.collection("users").document(uid).get()
-                    .addOnSuccessListener { mySnapshot ->
-                        Log.d("USER", "$mySnapshot")
 
-                        if (mySnapshot.exists()) {
-                            val list = mySnapshot.data
-                            if (list != null) {
-                                for (items in list) {
-                                    if (items.key == "username") {
-                                        username.value = items.value.toString()
-                                    }
-                                }
-                            }
-                        } else {
-                            println("No data found in Database")
-                        }
-                    }.addOnFailureListener {
-                        println("$it")
+            firestoreRepository.getCurrentUser().collect{ result ->
+                when(result) {
+                    is Resource.Error -> {
+                        _currentUserStatus.send(CurrentUser(isError = result.message))
                     }
-            }
 
+                    is Resource.Loading -> {
+                        _currentUserStatus.send(CurrentUser(isLoading = true))
+                    }
+
+                    is Resource.Success -> {
+                        _currentUserStatus.send(CurrentUser(isSuccess = result.data))
+
+                    }
+                }
+            }
         }
-    }
+
 
     fun updateSignUpState(value: SignUpUiState) {
         _signupUiState.value = value
     }
 
-    fun registerUser(email: String, password: String, username: String) = viewModelScope.launch {
-        repository.registerUser(email, password, username).collect { result ->
-            when (result) {
-                is Resource.Error -> {
-                    _signUpState.send(RegisterState(isError = result.message))
-                }
+    fun registerUser(email: String, password: String, username: String) =
+        viewModelScope.launch {
+            repository.registerUser(email, password, username).collect { result ->
+                when (result) {
+                    is Resource.Error -> {
+                        _signUpState.send(RegisterState(isError = result.message))
+                    }
 
-                is Resource.Loading -> {
-                    _signUpState.send(RegisterState(isLoading = true))
-                }
+                    is Resource.Loading -> {
+                        _signUpState.send(RegisterState(isLoading = true))
+                    }
 
-                is Resource.Success -> {
-                    _signUpState.send(RegisterState(isSuccess = "Register Success"))
+                    is Resource.Success -> {
+                        _signUpState.send(RegisterState(isSuccess = "Register Success"))
+                    }
                 }
             }
         }
-    }
 
 }
 
@@ -170,4 +201,10 @@ data class LoginUiState(
 
 data class SignUpUiState(
     val name: String = "", val email: String = "", val password: String = ""
+)
+
+data class MoreDetailsUiState(
+    val phone: String = "",
+    val images: ByteArray? = null,
+    val location: String = ""
 )

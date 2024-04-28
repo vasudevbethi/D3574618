@@ -61,8 +61,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.d3574618.R
-import uk.ac.tees.mad.d3574618.domain.LoginStatus
-import uk.ac.tees.mad.d3574618.domain.RegisterState
+import uk.ac.tees.mad.d3574618.data.domain.LoginStatus
+import uk.ac.tees.mad.d3574618.data.domain.RegisterState
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 
 object AuthDestination : NavigationDestination {
@@ -78,10 +78,12 @@ fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     registerSuccess: () -> Unit = {},
     onForgetPassword: () -> Unit,
+    loginSuccess: () -> Unit
 ) {
     val isLoginSelected = rememberSaveable {
         mutableStateOf(true)
     }
+    val currentUserStatus = viewModel.currentUserStatus.collectAsState(initial = null)
     val signInState = viewModel.state.collectAsState().value
     val signInStatus = viewModel.signInState.collectAsState(initial = null)
     val signUpstate = viewModel.signUpState.collectAsState(initial = null)
@@ -128,7 +130,8 @@ fun AuthScreen(
             SignUpForm(viewModel, state = signUpstate)
         }
         Spacer(modifier = Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+        Row(
+            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
 
         ) {
             Text(
@@ -225,7 +228,13 @@ fun AuthScreen(
                     focusManager.clearFocus()
                     val success = signInStatus.value?.isSuccess
                     Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
-                    registerSuccess()
+                    currentUserStatus.value?.isSuccess.let {
+                        if (it?.item?.phone.isNullOrEmpty()) {
+                            registerSuccess()
+                        } else {
+                            loginSuccess()
+                        }
+                    }
                 }
             }
         }
@@ -387,7 +396,7 @@ fun SignUpForm(viewModel: AuthViewModel, state: State<RegisterState?>) {
                 viewModel.registerUser(
                     username = signUpUiState.name,
                     email = signUpUiState.email,
-                    password = signUpUiState.password,
+                    password = signUpUiState.password
                 )
                 println(signUpUiState)
             }, modifier = Modifier

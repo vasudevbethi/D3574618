@@ -6,13 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
-import uk.ac.tees.mad.d3574618.ui.theme.ReusableItemExchangeTheme
+import uk.ac.tees.mad.d3574618.auth.MoreDetailsScreen
 import uk.ac.tees.mad.d3574618.ui.navigation.ReusableItemNavigation
+import uk.ac.tees.mad.d3574618.ui.theme.ReusableItemExchangeTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,6 +25,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ReusableItemNavigation()
+
+
                 }
             }
         }

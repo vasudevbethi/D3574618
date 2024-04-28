@@ -8,8 +8,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.tasks.await
-import uk.ac.tees.mad.d3574618.domain.SignInResult
-import uk.ac.tees.mad.d3574618.domain.UserData
+import uk.ac.tees.mad.d3574618.data.domain.SignInResult
+import uk.ac.tees.mad.d3574618.data.domain.UserData
 import java.util.concurrent.CancellationException
 
 const val ServerClient = "479659468694-1060jqim3qr8n1a933ckbitkvvimvt04.apps.googleusercontent.com"
@@ -32,7 +32,7 @@ class GoogleAuthUiClient(
         return result?.pendingIntent?.intentSender
     }
 
-    suspend fun signInWithIntent(intent: Intent): SignInResult{
+    suspend fun signInWithIntent(intent: Intent): SignInResult {
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
         val googleIdToken = credential.googleIdToken
         val googleCredential = GoogleAuthProvider.getCredential(googleIdToken, null)

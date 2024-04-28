@@ -32,9 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import uk.ac.tees.mad.d3574618.ui.screens.AddItemsDestination
-import uk.ac.tees.mad.d3574618.ui.screens.FavoritesDestination
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination
-import uk.ac.tees.mad.d3574618.ui.screens.MessagesDestination
 import uk.ac.tees.mad.d3574618.ui.screens.ProfileDestination
 
 sealed class BottomNavigationScreens(
@@ -47,23 +45,10 @@ sealed class BottomNavigationScreens(
         selectedIcon = Icons.Outlined.Home,
         nameRes = HomeScreenDestination.titleRes
     )
-
-    object Favorite : BottomNavigationScreens(
-        route = FavoritesDestination.route,
-        selectedIcon = Icons.Outlined.FavoriteBorder,
-        nameRes = FavoritesDestination.titleRes
-    )
-
     object AddItem : BottomNavigationScreens(
         route = AddItemsDestination.route,
         selectedIcon = Icons.Outlined.ControlPoint,
         nameRes = AddItemsDestination.titleRes
-    )
-
-    object Messages : BottomNavigationScreens(
-        route = MessagesDestination.route,
-        selectedIcon = Icons.Rounded.ChatBubbleOutline,
-        nameRes = MessagesDestination.titleRes
     )
 
 
@@ -78,9 +63,7 @@ sealed class BottomNavigationScreens(
 
 val bottomNavigationItems = listOf(
     BottomNavigationScreens.Home,
-    BottomNavigationScreens.Favorite,
     BottomNavigationScreens.AddItem,
-    BottomNavigationScreens.Messages,
     BottomNavigationScreens.Profile,
 )
 
@@ -107,7 +90,7 @@ fun BottomNavBar(
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
 
             NavItem(
@@ -119,14 +102,6 @@ fun BottomNavBar(
                 interactionSource = interactionSource
             )
 
-            NavItem(
-                selected = selectedTabIndex == 1,
-                onClick = {
-                    navController.navigate(tabBarItems[1].route)
-                },
-                tabBarItem = tabBarItems[1],
-                interactionSource = interactionSource
-            )
 
             Column(
                 Modifier
@@ -143,29 +118,21 @@ fun BottomNavBar(
                 ) {
 
                     Icon(
-                        imageVector = tabBarItems[2].selectedIcon,
-                        contentDescription = tabBarItems[2].route,
+                        imageVector = tabBarItems[1].selectedIcon,
+                        contentDescription = tabBarItems[1].route,
                         tint = Color.Black,
                         modifier = Modifier.size(40.dp)
                     )
                 }
             }
 
-            NavItem(
-                selected = selectedTabIndex == 3,
-                onClick = {
-                    navController.navigate(tabBarItems[3].route)
-                },
-                tabBarItem = tabBarItems[3],
-                interactionSource = interactionSource
-            )
 
             NavItem(
-                selected = selectedTabIndex == 4,
+                selected = selectedTabIndex == 2,
                 onClick = {
-                    navController.navigate(tabBarItems[4].route)
+                    navController.navigate(tabBarItems[2].route)
                 },
-                tabBarItem = tabBarItems[4],
+                tabBarItem = tabBarItems[2],
                 interactionSource = interactionSource
             )
 

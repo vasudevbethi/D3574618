@@ -73,12 +73,22 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage)
 
     //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.47")
-
     ksp ("com.google.dagger:hilt-compiler:2.47")
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+// Room
+    implementation ("androidx.room:room-runtime:2.6.1")
+    ksp ("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-ktx:2.6.1")
+
+    implementation ("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+
+    //Coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

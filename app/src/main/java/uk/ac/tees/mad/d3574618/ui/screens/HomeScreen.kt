@@ -1,6 +1,5 @@
 package uk.ac.tees.mad.d3574618.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,37 +21,46 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.d3574618.R
+import uk.ac.tees.mad.d3574618.data.domain.FirestoreItemResponse
+import uk.ac.tees.mad.d3574618.data.domain.ItemCategory
+import uk.ac.tees.mad.d3574618.data.domain.toItem
+import uk.ac.tees.mad.d3574618.showToast
+import uk.ac.tees.mad.d3574618.ui.components.GridItem
 import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavBar
 import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavigationScreens
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 import uk.ac.tees.mad.d3574618.ui.navigation.bottomNavigationItems
+import uk.ac.tees.mad.d3574618.ui.viewmodels.HomeViewModel
 
 object HomeScreenDestination : NavigationDestination {
     override val route = "home"
@@ -61,10 +69,35 @@ object HomeScreenDestination : NavigationDestination {
 
 @Composable
 fun HomeScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    onItemClick: (String) -> Unit,
+    onLikedClick: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedCategoryIndex = remember {
         mutableIntStateOf(0)
+    }
+    val itemRetrieveState = viewModel.itemsList.collectAsState(initial = null)
+
+    val itemListSuccess = itemRetrieveState.value?.isSuccess
+    val context = LocalContext.current
+
+    val itemList = remember {
+        mutableStateOf(emptyList<FirestoreItemResponse>())
+    }
+
+    LaunchedEffect(itemRetrieveState.value?.isSuccess) {
+        if (!itemRetrieveState.value?.isSuccess.isNullOrEmpty()) {
+            itemRetrieveState.value?.isSuccess.let {
+                itemList.value = it?.filter { item ->
+                    item.item?.keywords?.contains("") == true
+                }!!
+            }
+        }
+    }
+
+    LaunchedEffect(true) {
+        viewModel.getItemList()
     }
 
     Scaffold(
@@ -100,10 +133,13 @@ fun HomeScreen(
                 )
                 Box(Modifier.height(40.dp)) {
                     Icon(
-                        imageVector = Icons.Outlined.Notifications,
-                        contentDescription = "Notifications",
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorites",
                         Modifier
                             .size(26.dp)
+                            .clickable {
+                                onLikedClick()
+                            }
                             .align(Alignment.Center)
                     )
                 }
@@ -114,7 +150,7 @@ fun HomeScreen(
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                itemsIndexed(categories) { index, item ->
+                itemsIndexed(ItemCategory.entries) { index, item ->
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
@@ -126,10 +162,22 @@ fun HomeScreen(
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                             .clickable {
                                 selectedCategoryIndex.intValue = index
+                                if (index == 0) {
+                                    itemRetrieveState.value?.isSuccess?.let {
+                                        itemList.value = it
+                                    }
+                                } else {
+
+                                    itemRetrieveState.value?.isSuccess?.let {
+                                        itemList.value = it.filter { i ->
+                                            i.item?.category == item
+                                        }
+                                    }
+                                }
                             },
                     ) {
                         Text(
-                            text = item,
+                            text = item.name,
                             color = if (selectedCategoryIndex.intValue == index)
                                 Color.White
                             else Color.Black,
@@ -139,85 +187,64 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            SearchBar()
-            Spacer(modifier = Modifier.height(20.dp))
-            ItemsGrid(gridItems)
-        }
-    }
-
-}
-
-@Composable
-fun ItemsGrid(gridItems: List<Item>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(gridItems) { item ->
-            GridItem(item)
-        }
-    }
-}
-
-@Composable
-fun GridItem(item: Item) {
-    Column(Modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .clip(RoundedCornerShape(24.dp))
-                .fillMaxWidth()
-                .height(200.dp)
-        ) {
-            Image(
-                painter = painterResource(id = item.imageRes),
-                contentDescription = "",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+            SearchBar(
+                onChange = { text ->
+                    itemRetrieveState.value?.isSuccess?.let {
+                        itemList.value = it.filter { i ->
+                            i.item?.keywords?.contains(text) == true
+                        }
+                    }
+                }
             )
-            Row(Modifier.fillMaxWidth()) {
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = "Like")
+            Spacer(modifier = Modifier.height(20.dp))
+            if (itemListSuccess.isNullOrEmpty()) {
+                Box(modifier = Modifier.weight(1f)) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                if (itemList.value.isEmpty()) {
+                    Text(text = "No items")
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        items(itemList.value) { item ->
+                            GridItem(
+                                item.toItem(),
+                                onClick = {
+                                    onItemClick(item.key!!)
+
+                                }, onLike = {
+                                    viewModel.addItemToFavorite(item.toItem())
+                                    context.showToast("Item Liked")
+                                }
+                            )
+                        }
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(70.dp))
         }
-        Column(Modifier.padding(8.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(
-                    text = "Swap",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Outlined.SwapHoriz,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = item.category, fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = item.category, fontSize = 13.sp, color = Color.Gray)
-        }
-
     }
 
 }
 
+
 @Composable
-fun SearchBar() {
-    var textFieldValue = remember {
-        TextFieldValue()
+fun SearchBar(
+    onChange: (String) -> Unit
+) {
+    var textFieldValue by remember {
+        mutableStateOf("")
     }
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = {
             textFieldValue = it
+            onChange(it)
         },
         modifier = Modifier.fillMaxWidth(),
         leadingIcon = {
@@ -226,58 +253,15 @@ fun SearchBar() {
         placeholder = {
             Text(text = "Search for anything", color = Color.Gray)
         },
-        enabled = false,
         colors = OutlinedTextFieldDefaults.colors(
-            disabledBorderColor = Color.Transparent,
-            disabledContainerColor = MaterialTheme.colorScheme.secondary
+            focusedBorderColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.secondary,
+            unfocusedBorderColor = Color.Transparent,
+            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
         ),
         shape = RoundedCornerShape(24.dp)
     )
 }
-
-val categories = listOf(
-    "All", "Electronics", "Clothes", "Home", "Furniture", "Cosmetics"
-)
-
-data class Item(
-    val id: Int,
-    val name: String,
-    val category: String,
-    val imageRes: Int
-)
-
-val gridItems = listOf(
-    Item(
-        id = 1,
-        name = "Iphone 12 Pro Max",
-        category = "Electronics",
-        imageRes = R.drawable.iphone
-    ),
-    Item(
-        id = 2,
-        name = "Airpods Pro",
-        category = "Electronics",
-        imageRes = R.drawable.airpods
-    ),
-    Item(
-        id = 3,
-        name = "Nike Men's Sneakers",
-        category = "Electronics",
-        imageRes = R.drawable.shoes
-    ),
-    Item(
-        id = 4,
-        name = "Play Station 5",
-        category = "Electronics",
-        imageRes = R.drawable.ps5
-    ),
-    Item(
-        id = 5,
-        name = "Macbook Pro",
-        category = "Electronics",
-        imageRes = R.drawable.laptop
-    )
-)
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
