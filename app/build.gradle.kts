@@ -74,10 +74,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage)
+    implementation(libs.play.services.location)
 
     //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.47")
-    implementation(libs.play.services.location)
     ksp ("com.google.dagger:hilt-compiler:2.47")
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
 

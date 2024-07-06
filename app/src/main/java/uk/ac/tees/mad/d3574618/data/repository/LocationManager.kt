@@ -11,6 +11,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationServices.*
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import kotlinx.coroutines.currentCoroutineContext
@@ -21,7 +22,7 @@ import java.util.Locale
 
 class LocationManager(private val context: Context, private val activity: Activity) {
 
-    private val settingsClient = LocationServices.getSettingsClient(context)
+    private val settingsClient = getSettingsClient(context)
     private val locationRequest = LocationRequest()
 
     fun checkGpsSettings() {

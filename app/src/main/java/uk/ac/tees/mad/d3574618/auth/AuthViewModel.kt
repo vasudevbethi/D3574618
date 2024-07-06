@@ -194,11 +194,6 @@ class AuthViewModel @Inject constructor(
             }
         }
 
-    val currentLocation = MutableStateFlow<Location?>(null)
-
-
-
-
 }
 
 data class LoginUiState(

@@ -93,25 +93,6 @@ fun AuthScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    val googleAuthUiClient by lazy {
-        GoogleAuthUiClient(
-            oneTapClient = Identity.getSignInClient(context)
-        )
-    }
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult(),
-        onResult = { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                scope.launch {
-                    val signInResult = googleAuthUiClient.signInWithIntent(
-                        intent = result.data ?: return@launch
-                    )
-                    viewModel.onSignInWithGoogleResult(signInResult)
-                }
-            }
-        }
-    )
-
     Column(
         Modifier
             .fillMaxSize()
@@ -144,68 +125,6 @@ fun AuthScreen(
             )
         }
 
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color.Gray.copy(alpha = 0.5f))
-            )
-            Text(
-                text = "OR",
-                modifier = Modifier.padding(12.dp),
-                fontSize = 20.sp,
-                color = Color.Gray.copy(alpha = 0.7f)
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color.Gray.copy(alpha = 0.5f))
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        OutlinedButton(
-            onClick = {
-                scope.launch {
-                    val signInIntentSender = googleAuthUiClient.signIn()
-                    launcher.launch(
-                        IntentSenderRequest.Builder(
-                            signInIntentSender ?: return@launch
-                        ).build()
-                    )
-
-                }
-            }, modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-        ) {
-            Box(Modifier.fillMaxWidth()) {
-                Column(
-                    Modifier
-                        .fillMaxHeight()
-                        .padding(horizontal = 8.dp), verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_google),
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp),
-                        tint = Color.Unspecified
-                    )
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(text = "Continue with Google", fontSize = 18.sp, color = Color.Black)
-                }
-            }
-
-        }
         Spacer(modifier = Modifier.height(18.dp))
         var isGoogleSigned by remember {
             mutableStateOf(false)
@@ -217,18 +136,6 @@ fun AuthScreen(
                 Log.d("USER", currentUserStatus.value!!.isSuccess.toString())
             }
         }
-
-        LaunchedEffect(currentUserStatus.value?.isError) {
-            if (currentUserStatus.value?.isError != null && isGoogleSigned) {
-                val user = googleAuthUiClient.getSignedInUser()
-                context.showToast("${currentUserStatus.value?.isError}")
-                if (user != null) {
-                    viewModel.saveUserInFirestore(user)
-                }
-                registerSuccess()
-            }
-        }
-
         LaunchedEffect(key1 = signInState.isSignInSuccessful) {
             if (signInState.isSignInSuccessful) {
                 Toast.makeText(

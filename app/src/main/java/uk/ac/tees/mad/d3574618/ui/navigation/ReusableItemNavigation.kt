@@ -16,7 +16,6 @@ import uk.ac.tees.mad.d3574618.auth.AuthDestination
 import uk.ac.tees.mad.d3574618.auth.AuthScreen
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordDestination
 import uk.ac.tees.mad.d3574618.auth.ForgotPasswordScreen
-import uk.ac.tees.mad.d3574618.auth.GoogleAuthUiClient
 import uk.ac.tees.mad.d3574618.auth.MoreDetailDestination
 import uk.ac.tees.mad.d3574618.auth.MoreDetailsScreen
 import uk.ac.tees.mad.d3574618.ui.screens.AddItemSuccess
@@ -44,13 +43,8 @@ fun ReusableItemNavigation() {
     val currentUser = firebase.currentUser
     val context = LocalContext.current
 
-    val googleAuthUiClient by lazy {
-        GoogleAuthUiClient(
-            oneTapClient = Identity.getSignInClient(context)
-        )
-    }
     val initialDestination =
-        if ((currentUser != null) || (googleAuthUiClient.getSignedInUser() != null)) route else AuthDestination.route
+        if (currentUser != null) route else AuthDestination.route
 
     // Define the navigation graph using NavHost
     NavHost(navController = navController, startDestination = SplashScreenDestination.route) {
@@ -170,7 +164,6 @@ fun ReusableItemNavigation() {
                 navController = navController, onLogOut = {
                     scope.launch {
                         firebase.signOut()
-                        googleAuthUiClient.signOut()
                         navController.navigate(AuthDestination.route)
                     }
                 }, onItemClick = {
