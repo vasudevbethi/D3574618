@@ -1,11 +1,7 @@
 package uk.ac.tees.mad.d3574618.auth
 
-import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,12 +10,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -30,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -50,7 +43,6 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -59,12 +51,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.d3574618.R
 import uk.ac.tees.mad.d3574618.data.domain.LoginStatus
 import uk.ac.tees.mad.d3574618.data.domain.RegisterState
-import uk.ac.tees.mad.d3574618.showToast
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 
 object AuthDestination : NavigationDestination {
@@ -331,7 +321,7 @@ fun SignUpForm(viewModel: AuthViewModel, state: State<RegisterState?>) {
                 .height(50.dp)
         ) {
             if (state.value?.isLoading == true) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.background)
+                CircularProgressIndicator(color = Color(0xFFFFFBFE))
             } else {
                 Text(text = "Sign up", fontSize = 20.sp)
             }
@@ -406,7 +396,7 @@ fun LoginForm(viewModel: AuthViewModel, state: State<LoginStatus?>) {
                 .height(50.dp)
         ) {
             if (state.value?.isLoading == true) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.background)
+                CircularProgressIndicator(color = Color(0xFFFFFBFE))
             } else {
                 Text(text = "Log in", fontSize = 20.sp)
             }

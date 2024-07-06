@@ -68,6 +68,7 @@ import uk.ac.tees.mad.d3574618.showToast
 import uk.ac.tees.mad.d3574618.ui.components.ExpandableText
 import uk.ac.tees.mad.d3574618.ui.components.SwapPopupBox
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 import uk.ac.tees.mad.d3574618.ui.viewmodels.ItemDetailsViewModel
 
 
@@ -120,7 +121,7 @@ fun ItemDetailsScreen(
                     .fillMaxWidth()
                     .height(50.dp)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(primaryGreen)
                     .clickable {
                         showPopup = true
                     },
@@ -185,7 +186,7 @@ fun ItemDetailsScreen(
                                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                     Text(
                                         text = "${item?.category}",
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = primaryGreen
                                     )
                                     Text(text = "|")
                                     Text(
@@ -201,7 +202,7 @@ fun ItemDetailsScreen(
                                     .clip(
                                         RoundedCornerShape(16.dp)
                                     )
-                                    .background(MaterialTheme.colorScheme.primary)
+                                    .background(primaryGreen)
 
 
                             ) {
@@ -260,7 +261,7 @@ fun ListedByUserCard(
         Modifier
             .fillMaxWidth()
             .border(
-                BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                BorderStroke(2.dp, primaryGreen),
                 RoundedCornerShape(16.dp)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -310,12 +311,12 @@ fun ListedByUserCard(
                                 subject = "Regarding ${item.name} listed on Reusable item exchange"
                             )
                         },
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = primaryGreen
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Message,
                     modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = primaryGreen,
                     contentDescription = "Message",
                 )
                 Icon(
@@ -325,7 +326,7 @@ fun ListedByUserCard(
                         .clickable {
                             context.dial(item?.listedBy?.phone!!)
                         },
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = primaryGreen,
                     contentDescription = "Call"
                 )
             }
@@ -410,7 +411,7 @@ fun IndicatorDot(
             .size(width.value)
             .clip(CircleShape)
             .background(
-                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(
+                if (isSelected) primaryGreen else primaryGreen.copy(
                     alpha = 0.5f
                 )
             )

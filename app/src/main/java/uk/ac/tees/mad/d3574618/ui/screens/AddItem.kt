@@ -80,6 +80,7 @@ import uk.ac.tees.mad.d3574618.ui.components.DropdownMenu
 import uk.ac.tees.mad.d3574618.ui.components.PhotoPickerOptionBottomSheet
 import uk.ac.tees.mad.d3574618.ui.components.SwapPopupBox
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 import uk.ac.tees.mad.d3574618.ui.viewmodels.AddItemViewModel
 
 object AddItemsDestination : NavigationDestination {
@@ -330,7 +331,7 @@ fun AddItems(
                     .fillMaxWidth()
                     .height(50.dp)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(primaryGreen)
                     .clickable {
                         if (validateFields(uiState, context)) {
                             Log.d("UIS", uiState.value.toString())

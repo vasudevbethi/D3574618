@@ -39,6 +39,7 @@ import coil.request.ImageRequest
 import uk.ac.tees.mad.d3574618.data.domain.FirestoreItemResponse
 import uk.ac.tees.mad.d3574618.data.domain.Item
 import uk.ac.tees.mad.d3574618.data.domain.toItem
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 
 
 @Composable
@@ -136,7 +137,7 @@ fun ListedItem(item: Item, onItemSelected: () -> Unit, isSelected: Boolean) {
 
             .clip(RoundedCornerShape(16.dp))
             .clickable { onItemSelected() }
-            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Unspecified),
+            .background(if (isSelected) primaryGreen else Color.Unspecified),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(

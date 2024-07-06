@@ -59,6 +59,7 @@ import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavBar
 import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavigationScreens
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 import uk.ac.tees.mad.d3574618.ui.navigation.bottomNavigationItems
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 import uk.ac.tees.mad.d3574618.ui.viewmodels.HomeViewModel
 
 object HomeScreenDestination : NavigationDestination {
@@ -144,7 +145,7 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(color = Color.LightGray)
             Spacer(modifier = Modifier.height(20.dp))
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -155,8 +156,8 @@ fun HomeScreen(
                             .clip(RoundedCornerShape(16.dp))
                             .background(
                                 if (selectedCategoryIndex.intValue == index)
-                                    MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.secondary
+                                    primaryGreen
+                                else Color.LightGray
                             )
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                             .clickable {
@@ -205,7 +206,7 @@ fun HomeScreen(
                     Text(text = "No items")
                 } else {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
+                        columns = GridCells.Fixed(1),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.weight(1f)
@@ -254,9 +255,9 @@ fun SearchBar(
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.Transparent,
-            focusedContainerColor = MaterialTheme.colorScheme.secondary,
-            unfocusedBorderColor = Color.Transparent,
-            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+            focusedContainerColor = Color.LightGray,
+            unfocusedBorderColor = Color.Black,
+            unfocusedContainerColor = Color.Transparent,
         ),
         shape = RoundedCornerShape(24.dp)
     )

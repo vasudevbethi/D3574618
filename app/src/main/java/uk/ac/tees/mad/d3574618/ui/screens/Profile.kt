@@ -79,6 +79,7 @@ import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavBar
 import uk.ac.tees.mad.d3574618.ui.navigation.BottomNavigationScreens
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
 import uk.ac.tees.mad.d3574618.ui.navigation.bottomNavigationItems
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 import uk.ac.tees.mad.d3574618.ui.viewmodels.MyListedItemsState
 import uk.ac.tees.mad.d3574618.ui.viewmodels.ProfileUiState
 import uk.ac.tees.mad.d3574618.ui.viewmodels.ProfileViewModel
@@ -207,7 +208,7 @@ fun ProfileScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onLogOut,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = primaryGreen
             ) {
                 Text(text = "Logout")
             }
@@ -222,7 +223,7 @@ fun ProfileScreen(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(primaryGreen)
                     .padding(24.dp)
             ) {
 
@@ -413,7 +414,7 @@ fun SwapRequestCard(
                     Icon(
                         imageVector = Icons.Default.SwapVerticalCircle,
                         contentDescription = "",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = primaryGreen,
                         modifier = Modifier
                             .padding(12.dp)
                             .size(40.dp)
@@ -480,7 +481,7 @@ fun ItemInfo(item: Item, title: String, onSwapItemClick: () -> Unit = {}) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primary),
+                            .background(primaryGreen),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -492,7 +493,7 @@ fun ItemInfo(item: Item, title: String, onSwapItemClick: () -> Unit = {}) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primary),
+                            .background(primaryGreen),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -504,7 +505,7 @@ fun ItemInfo(item: Item, title: String, onSwapItemClick: () -> Unit = {}) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primary),
+                            .background(primaryGreen),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -645,7 +646,7 @@ fun SwapHistoryItem(item: Item, onClick: () -> Unit) {
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
                         .background(
-                            if (item.itemSwapStatus == "Swapped") MaterialTheme.colorScheme.primary else Color.Red.copy(
+                            if (item.itemSwapStatus == "Swapped") primaryGreen else Color.Red.copy(
                                 0.5f
                             )
                         )
@@ -663,17 +664,17 @@ fun SwapHistoryItem(item: Item, onClick: () -> Unit) {
                     text = "Swap",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
                 Icon(
                     imageVector = Icons.Outlined.SwapHoriz,
                     contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = primaryGreen
                 )
                 Text(
                     text = item.category, fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
             }
             Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)

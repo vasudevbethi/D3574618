@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uk.ac.tees.mad.d3574618.R
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 
 object AddItemsSuccessDestination : NavigationDestination {
     override val route = "add_item_success"
@@ -95,12 +96,12 @@ fun AddItemSuccess(
                         text = "Success!",
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = primaryGreen
                     )
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = primaryGreen,
                         modifier = Modifier.size(60.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))

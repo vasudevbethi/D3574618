@@ -44,6 +44,7 @@ import uk.ac.tees.mad.d3574618.data.domain.Item
 import uk.ac.tees.mad.d3574618.data.domain.toItem
 import uk.ac.tees.mad.d3574618.showToast
 import uk.ac.tees.mad.d3574618.ui.navigation.NavigationDestination
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 import uk.ac.tees.mad.d3574618.ui.viewmodels.LikedItemViewModel
 
 @Composable
@@ -162,17 +163,17 @@ fun FavoriteItem(item: Item, onClick: () -> Unit, onUnLike: () -> Unit) {
                     text = "Swap",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
                 Icon(
                     imageVector = Icons.Outlined.SwapHoriz,
                     contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = primaryGreen
                 )
                 Text(
                     text = item.category, fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
             }
             Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)

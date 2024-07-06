@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.d3574618.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import uk.ac.tees.mad.d3574618.data.domain.Item
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 
 
 @Composable
@@ -44,6 +47,7 @@ fun GridItem(
     Column(
         Modifier
             .fillMaxWidth()
+            .border(1.dp, Color.Gray, RoundedCornerShape(24.dp))
             .clickable { onClick() }) {
         Box(
             Modifier
@@ -69,7 +73,7 @@ fun GridItem(
                     onClick = onLike,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f))
+                        .background(Color.White.copy(alpha = 0.8f))
 
                 ) {
                     Icon(imageVector = iconRes, contentDescription = null)
@@ -82,17 +86,17 @@ fun GridItem(
                     text = "Swap",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
                 Icon(
                     imageVector = Icons.Outlined.SwapHoriz,
                     contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = primaryGreen
                 )
                 Text(
                     text = item.category, fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primaryGreen
                 )
             }
             Text(text = item.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
