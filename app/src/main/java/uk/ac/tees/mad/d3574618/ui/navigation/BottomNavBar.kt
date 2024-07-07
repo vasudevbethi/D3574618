@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import uk.ac.tees.mad.d3574618.ui.screens.AddItemsDestination
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination
 import uk.ac.tees.mad.d3574618.ui.screens.ProfileDestination
+import uk.ac.tees.mad.d3574618.ui.theme.primaryGreen
 
 sealed class BottomNavigationScreens(
     val route: String,
@@ -121,7 +122,7 @@ fun BottomNavBar(
                         imageVector = tabBarItems[1].selectedIcon,
                         contentDescription = tabBarItems[1].route,
                         tint = Color.Black,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             }
@@ -166,14 +167,14 @@ fun NavItem(
             Icon(
                 imageVector = tabBarItem.selectedIcon,
                 contentDescription = tabBarItem.route,
-                tint = if (selected) MaterialTheme.colorScheme.primary else Color.Black,
+                tint = if (selected) primaryGreen else Color.Black,
                 modifier = Modifier.size(25.dp)
             )
 
             Text(
                 text = stringResource(id = tabBarItem.nameRes),
                 fontSize = 14.sp,
-                color = if (selected) MaterialTheme.colorScheme.primary else Color.Black
+                color = if (selected) primaryGreen else Color.Black
             )
         }
     }
