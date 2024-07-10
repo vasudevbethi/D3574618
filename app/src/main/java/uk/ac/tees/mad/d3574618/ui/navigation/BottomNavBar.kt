@@ -1,15 +1,20 @@
 package uk.ac.tees.mad.d3574618.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ControlPoint
@@ -30,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import uk.ac.tees.mad.d3574618.ui.screens.AddItemsDestination
 import uk.ac.tees.mad.d3574618.ui.screens.HomeScreenDestination
@@ -46,6 +52,7 @@ sealed class BottomNavigationScreens(
         selectedIcon = Icons.Outlined.Home,
         nameRes = HomeScreenDestination.titleRes
     )
+
     object AddItem : BottomNavigationScreens(
         route = AddItemsDestination.route,
         selectedIcon = Icons.Outlined.ControlPoint,
@@ -79,21 +86,40 @@ fun BottomNavBar(
     val interactionSource = remember {
         MutableInteractionSource()
     }
-    Row(
+    Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .padding(horizontal = 18.dp)
-            .fillMaxWidth()
-            .background(Color.White),
-        horizontalArrangement = Arrangement.Center
+            .height(100.dp)
+            .fillMaxWidth(),
     ) {
+        Column(
+            Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(2f)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable(interactionSource = interactionSource, indication = null) {
+                    onAddItemClick()
+                }.padding(4.dp)
+                .height(80.dp)
+                ,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = tabBarItems[1].selectedIcon,
+                contentDescription = tabBarItems[1].route,
+                tint = primaryGreen,
+                modifier = Modifier
+                    .size(80.dp)
+            )
+        }
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+                .border(1.dp, Color.LightGray, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(Color.White),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-
             NavItem(
                 selected = selectedTabIndex == 0,
                 onClick = {
@@ -104,28 +130,8 @@ fun BottomNavBar(
             )
 
 
-            Column(
-                Modifier
-                    .clickable(interactionSource = interactionSource, indication = null) {
-                        onAddItemClick()
-                    }
-                    .height(70.dp), verticalArrangement = Arrangement.Center
-            ) {
-                Column(
-                    Modifier
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
 
-                    Icon(
-                        imageVector = tabBarItems[1].selectedIcon,
-                        contentDescription = tabBarItems[1].route,
-                        tint = Color.Black,
-                        modifier = Modifier.size(50.dp)
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.width(30.dp))
 
 
             NavItem(

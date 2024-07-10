@@ -21,8 +21,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapVerticalCircle
@@ -35,8 +33,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -52,15 +48,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -223,7 +215,7 @@ fun ProfileScreen(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .background(primaryGreen)
+                    .background(primaryGreen.copy(0.2f))
                     .padding(24.dp)
             ) {
 
@@ -250,7 +242,7 @@ fun ProfileScreen(
                         )
                     }
                 }
-                EditDetails(uiState, focusManager)
+                EditDetails(uiState)
             }
 
             Column(
@@ -268,7 +260,7 @@ fun ProfileScreen(
                             },
                             modifier = Modifier.height(40.dp)
                         ) {
-                            Text(text = s, fontSize = 20.sp)
+                            Text(text = s, fontSize = 18.sp)
                         }
                     }
                 }
@@ -687,8 +679,7 @@ fun SwapHistoryItem(item: Item, onClick: () -> Unit) {
 
 @Composable
 fun EditDetails(
-    uiState: State<ProfileUiState>,
-    focusManager: FocusManager
+    uiState: State<ProfileUiState>
 ) {
     Column(
         Modifier
@@ -696,81 +687,61 @@ fun EditDetails(
             .padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        OutlinedTextField(
-            value = uiState.value.name,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White.copy(0.8f),
-                focusedContainerColor = Color.White.copy(0.8f)
-            ),
-            label = {
-                Text(text = "Name", color = Color.Black)
-            },
-            maxLines = 1,
-            visualTransformation = VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            })
-        )
-        OutlinedTextField(
-            value = uiState.value.email,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White.copy(0.8f),
-                focusedContainerColor = Color.White.copy(0.8f)
-            ),
-            label = {
-                Text(text = "Email", color = Color.Black)
-            },
-            maxLines = 1,
-            visualTransformation = VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            })
-        )
-        OutlinedTextField(
-            value = uiState.value.phone,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White.copy(0.8f),
-                focusedContainerColor = Color.White.copy(0.8f)
-            ),
-            label = {
-                Text(text = "Phone", color = Color.Black)
-            },
-            maxLines = 1,
-            visualTransformation = VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            })
-        )
-        OutlinedTextField(
-            value = uiState.value.location,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White.copy(0.8f),
-                focusedContainerColor = Color.White.copy(0.8f)
-            ),
-            label = {
-                Text(text = "Location", color = Color.Black)
-            },
-            maxLines = 1,
-            visualTransformation = VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            })
-        )
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(text = "Name", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.width(46.dp))
+            Text(
+                text = "${uiState.value.name}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = primaryGreen
+            )
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(text = "Email", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.width(50.dp))
+            Text(
+                text = "${uiState.value.email}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = primaryGreen
+            )
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(text = "Phone", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.width(42.dp))
+            Text(
+                text = "${uiState.value.phone}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = primaryGreen
+            )
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(text = "Location", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.width(24.dp))
+            Text(
+                text = "${uiState.value.location}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = primaryGreen
+            )
+        }
     }
 }
