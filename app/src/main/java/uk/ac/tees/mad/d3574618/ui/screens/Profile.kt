@@ -100,7 +100,7 @@ fun ProfileScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    val tabList = listOf("Swap requests", "Listed Items", "Swap History")
+    val tabList = listOf("Swap requests", "Listed Items")
     val swapRequestList = remember {
         mutableStateListOf<Pair<Item, Item>>()
     }
@@ -301,12 +301,6 @@ fun ProfileScreen(
                             )
                         }
 
-                        2 -> {
-                            SwapHistory(
-                                myListedItemsState = myListedItemsState,
-                                onItemClick = onItemClick
-                            )
-                        }
                     }
                 }
             }
@@ -567,45 +561,45 @@ fun MyListedItem(
         }
     }
 }
-
-@Composable
-fun SwapHistory(
-    myListedItemsState: State<MyListedItemsState?>,
-    onItemClick: (String) -> Unit
-) {
-    val myListedItems = myListedItemsState.value?.isSuccess?.filter {
-        it.item?.itemSwapStatus != "Pending"
-    }?.map {
-        it.toItem()
-    }
-
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (myListedItemsState.value?.isLoading == true) {
-            CircularProgressIndicator()
-        } else {
-            if (myListedItems == null) {
-
-                Column(Modifier.fillMaxWidth()) {
-                    Text(text = "No items swapped")
-                }
-
-            } else {
-                myListedItems.forEach { item ->
-                    SwapHistoryItem(
-                        item = item,
-                        onClick = { onItemClick(item.id) }
-                    )
-                }
-            }
-        }
-    }
-}
+//
+//@Composable
+//fun SwapHistory(
+//    myListedItemsState: State<MyListedItemsState?>,
+//    onItemClick: (String) -> Unit
+//) {
+//    val myListedItems = myListedItemsState.value?.isSuccess?.filter {
+//        it.item?.itemSwapStatus != "Pending"
+//    }?.map {
+//        it.toItem()
+//    }
+//
+//    Column(
+//        Modifier
+//            .fillMaxSize()
+//            .padding(vertical = 16.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        if (myListedItemsState.value?.isLoading == true) {
+//            CircularProgressIndicator()
+//        } else {
+//            if (myListedItems == null) {
+//
+//                Column(Modifier.fillMaxWidth()) {
+//                    Text(text = "No items swapped")
+//                }
+//
+//            } else {
+//                myListedItems.forEach { item ->
+//                    SwapHistoryItem(
+//                        item = item,
+//                        onClick = { onItemClick(item.id) }
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
 
 @Composable
